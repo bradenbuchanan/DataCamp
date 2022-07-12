@@ -11,22 +11,64 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+#Install the package
+install.packages('ipeds', repos=c('http://R-Forge.R-project.org', 'http://lib.stat.cmu.edu/R/CRAN'), dep=TRUE)
+install.packages("XML")
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+#Load the package
+library(magrittr)
+library(ggplot2)
+library(dplyr)
+library(sf)
+library(ggmap)
+library(leaflet)
 
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
+```{r}
+collegeData <- Most_Recent_Cohorts_All_Data_Elements
 
-You can also embed plots, for example:
+#renaming columns
+collegeData %>%
+  rename(
+    STABBR = State
+  )
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+collegeData
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Number of California colleges or secondary education institutions
+```{r}
+collegesPerState <- collegeData %>%
+  group_by(STABBR) %>%
+  count() %>%
+  arrange(desc(n))
+
+summary(collegesPerState)
+
+#converting column to int
+collegesPerState[,2] <- sapply(collegesPerState[,2], as.numeric)
+collegesPerState
+
+collegesPerState %>%
+  ggplot(aes(STABBR, n)) + 
+  #include stat='identity' tells ggplot2 I will provide the y values for the barplot, rather than counting the aggregate number of rows for each   x value, which by default, is stat='count'
+  geom_bar(stat='identity', fill = "steelblue") +
+  geom_text(aes(label=n), vjust = 1.6, color = "white", size = 2.5) + 
+  theme_minimal()
+```
+California has by far the most secondary school institutions in the country coming at 714. New York with 449. And Texas with 443.
+
+
+```{r}
+CASchools <- collegeData %>%
+  filter(STABBR == "CA")
+
+```
+
+
+
+
