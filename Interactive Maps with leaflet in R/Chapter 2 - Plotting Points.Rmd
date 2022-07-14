@@ -24,6 +24,7 @@ library(dplyr)
 library(sf)
 library(ggmap)
 library(leaflet)
+library(tidyverse)
 
 ```
 
@@ -65,7 +66,15 @@ California has by far the most secondary school institutions in the country comi
 
 ```{r}
 CASchools <- collegeData %>%
+  drop_na() %>%
   filter(STABBR == "CA")
+
+head(CASchools)
+CASchools[,22:23] <- sapply(CASchools[,22:23], as.numeric)
+CASchools[,22:23]
+
+map %>%
+  addMarkers(lng = CASchools$LONGITUDE, CASchools$LATITUDE)
 
 ```
 
